@@ -78,7 +78,7 @@ resource "azurerm_container_group" "this" {
     name   = "examplecontainer"
     image  = "${azurerm_container_registry.this.login_server}/tree:latest"
     cpu    = "4"
-    memory = "4"
+    memory = "8"
 
     commands = [
       "python", "/app/code/import.py"

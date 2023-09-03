@@ -1,16 +1,23 @@
-import pandas as pd
+import polars as pd
 import duckdb as dd
-
+import adlfs
+import os
 
 def clear_files():
-    df = pd.read_csv(
-        "abfs://commonstorage/landing/title.basics.tsv.gz", sep="\t", low_memory=False
-    )
-    
+    fs = adlfs.AzureBlobFileSystem(account_name=os.environ["AZURE_STORAGE_ACCOUNT_NAME"])
+    with fs.open("abfs://commonstorage/landing/title.basics.tsv.gz","rb") as file:
+        df = pd.read_csv(file.read()
+            , 
+            separator="\t", 
+            infer_schema_length=0,
+            missing_utf8_is_empty_string=True,
+            ignore_errors=True
+        )
+    print(df.head())
     df_genres = dd.sql(
         """
         SELECT 
-        nconst, UNNEST(str_split(genres,',')) as genres
+        tconst, UNNEST(str_split(genres,',')) as genres
         from
         df
     """
@@ -21,7 +28,7 @@ def clear_files():
     df_title = dd.sql(
         """
         SELECT 
-        nconst, 
+        tconst, 
         titleType, 
         primaryTitle,
         originalTitle,

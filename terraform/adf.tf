@@ -9,7 +9,6 @@ resource "azurerm_data_factory" "adf_transform" {
 }
 
 # ADF should have access to kv to read the service principal
-# information.
 resource "azurerm_key_vault_access_policy" "kv_adf_transform" {
   key_vault_id = azurerm_key_vault.kv.id
   tenant_id    = data.azurerm_client_config.current.tenant_id
