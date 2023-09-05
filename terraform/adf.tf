@@ -47,9 +47,13 @@ resource "azurerm_data_factory_pipeline" "acg_start_pipe" {
     "acg_rg" = var.resource_group
   }
 
+  variables = {
+    "status" = ""
+  }
+
   activities_json = <<EOF_JSON
 
-[
+        [
             {
                 "name": "kv_get_acr-sp",
                 "description": "Retrieves the service principal id, used for starting the ACG.",
@@ -167,28 +171,8 @@ resource "azurerm_data_factory_pipeline" "acg_start_pipe" {
                             "type": "Expression"
                         }
                     },
-                    "body": { 
-                      "value": "{}",
-                      "type": "Expression"
-                    }
-                }
-            },
-            {
-                "name": "Wait_for_acg_finish",
-                "description": "Wait for ACG to finish completion, by x no of minutes.",
-                "type": "Wait",
-                "dependsOn": [
-                    {
-                        "activity": "start_acg",
-                        "dependencyConditions": [
-                            "Succeeded"
-                        ]
-                    }
-                ],
-                "userProperties": [],
-                "typeProperties": {
-                    "waitTimeInSeconds": {
-                        "value": "@pipeline().parameters.sleep_time_potential_completion",
+                    "body": {
+                        "value": "{}",
                         "type": "Expression"
                     }
                 }
@@ -199,7 +183,7 @@ resource "azurerm_data_factory_pipeline" "acg_start_pipe" {
                 "type": "WebActivity",
                 "dependsOn": [
                     {
-                        "activity": "Wait_for_acg_finish",
+                        "activity": "Until_finish",
                         "dependencyConditions": [
                             "Succeeded"
                         ]
@@ -225,6 +209,95 @@ resource "azurerm_data_factory_pipeline" "acg_start_pipe" {
                             "type": "Expression"
                         }
                     }
+                }
+            },
+            {
+                "name": "Until_finish",
+                "type": "Until",
+                "dependsOn": [
+                    {
+                        "activity": "start_acg",
+                        "dependencyConditions": [
+                            "Succeeded"
+                        ]
+                    }
+                ],
+                "userProperties": [],
+                "typeProperties": {
+                    "expression": {
+                        "value": "@or(\n    or(\n    equals(variables('status'),'Succeeded'), \n    equals(variables('status'),'Stopped')\n    ),\n    equals(variables('status'),'Failed')\n    )",
+                        "type": "Expression"
+                    },
+                    "activities": [
+                        {
+                            "name": "Wait1",
+                            "type": "Wait",
+                            "dependsOn": [],
+                            "userProperties": [],
+                            "typeProperties": {
+                                "waitTimeInSeconds": 60
+                            }
+                        },
+                        {
+                            "name": "get_acg_status_work",
+                            "description": "Get the status of the ACG to confirm if it finished or still running",
+                            "type": "WebActivity",
+                            "dependsOn": [
+                                {
+                                    "activity": "Wait1",
+                                    "dependencyConditions": [
+                                        "Succeeded"
+                                    ]
+                                }
+                            ],
+                            "policy": {
+                                "timeout": "7.00:00:00",
+                                "retry": 0,
+                                "retryIntervalInSeconds": 30,
+                                "secureOutput": false,
+                                "secureInput": false
+                            },
+                            "userProperties": [],
+                            "typeProperties": {
+                                "url": {
+                                    "value": "@concat(\n'https://management.azure.com/subscriptions/',\npipeline().parameters.az_sub_id\n,'/resourceGroups/',\npipeline().parameters.acg_rg\n,'/providers/Microsoft.ContainerInstance/containerGroups/',\npipeline().parameters.acg_name\n,'?api-version=2019-12-01'\n)",
+                                    "type": "Expression"
+                                },
+                                "method": "GET",
+                                "headers": {
+                                    "Authorization": {
+                                        "value": "@concat(\n 'Bearer ',\n  activity('get_access_token').output.access_token\n)",
+                                        "type": "Expression"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "name": "Set status",
+                            "type": "SetVariable",
+                            "dependsOn": [
+                                {
+                                    "activity": "get_acg_status_work",
+                                    "dependencyConditions": [
+                                        "Succeeded"
+                                    ]
+                                }
+                            ],
+                            "policy": {
+                                "secureOutput": false,
+                                "secureInput": false
+                            },
+                            "userProperties": [],
+                            "typeProperties": {
+                                "variableName": "status",
+                                "value": {
+                                    "value": "@activity('get_acg_status_work').output.properties.provisioningState",
+                                    "type": "Expression"
+                                }
+                            }
+                        }
+                    ],
+                    "timeout": "0.12:00:00"
                 }
             }
         ]
