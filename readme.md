@@ -1,15 +1,50 @@
+# To deply this code in your enviroment 
+- create a resorce group
+- create a Service Principal and generate its secrete
+- adjust .env file for local testing and create testing.tfvars file for terraform deployment
+
+testing.tfvars:
+```
+resource_group = "mk-test"
+region = "East US"
+
+client_id = ""
+secrete = ""
+project = "az"
+```
+.env
+```
+AZURE_STORAGE_ACCOUNT_KEY=""
+AZURE_STORAGE_ACCOUNT_NAME=""
+```
+- execute terraform script to create resorces
+
+```
+terraform init
+
+terraform plan -var-file="testing.tfvars"
+
+terraform apply -var-file="testing.tfvars"
+```
+# Know issues
+
+If you can't see the docker image in container registry you can build the docker and upload it using the instruction bellow "container registry - deploy docker to Azure container registy" and restart terraform script.
+
+
+# build docker
+
 docker build -t tree .
 
 docker run --name tree -d tree
 
 docker run -d --env-file .env --name tree tree
 
-# container registry
+# container registry - deploy docker to Azure container registy
 
-az acr login --name myregistry
+az acr login --name [registyname]
 
-docker tag tree crmkfilm001.azurecr.io/tree
+docker tag tree [registyname].azurecr.io/tree
 
-docker push crmkfilm001.azurecr.io/tree
+docker push [registyname].azurecr.io/tree
 
-az acr update -n crmkfilm001 --admin-enabled true
+az acr update -n [registyname] --admin-enabled true
