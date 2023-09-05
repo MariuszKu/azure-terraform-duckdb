@@ -27,6 +27,8 @@ terraform plan -var-file="testing.tfvars"
 
 terraform apply -var-file="testing.tfvars"
 ```
+![1 u9cWuDaz-mG8M0geKP_-2g](https://github.com/MariuszKu/azure-terraform-duckdb/assets/55062728/a93cfbfd-8f0c-48c9-83f9-5538ffd2a452)
+
 # Know issues
 
 If you can't see the docker image in container registry you can build the docker and upload it using the instruction bellow "container registry - deploy docker to Azure container registy" and restart terraform script.
