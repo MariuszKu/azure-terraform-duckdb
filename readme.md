@@ -1,10 +1,14 @@
 # To deply this code in your enviroment 
 - create a resorce group
 - create a Service Principal and generate its secrete
+  Azure Active Directory -> Enterprise applications -> New Application
+
+![image](https://github.com/MariuszKu/azure-terraform-duckdb/assets/55062728/7b22d009-eeb4-4215-adf1-bdd08ac42b66)
+
+- add the Service Principal as a contributor in the resorce group
 
 ![image](https://github.com/MariuszKu/azure-terraform-duckdb/assets/55062728/95a1d68f-af5f-4cae-b8f0-55f5d28bd46a)
 
-- add the Service Principal as a contributor in the resorce group
 - adjust .env file for local testing and create testing.tfvars file for terraform deployment
 
 testing.tfvars:
