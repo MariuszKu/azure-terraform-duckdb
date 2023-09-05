@@ -1,9 +1,12 @@
 # To deply this code in your enviroment 
 - create a resorce group
 - create a Service Principal and generate its secrete
-  Azure Active Directory -> Enterprise applications -> New Application
+  Azure Active Directory -> App registration -> New Registration
+  The secrete you can generate by clicking on your new application registry
+  Certificates & Secretes -> New Client Secrete -> copy secrete value
 
-![image](https://github.com/MariuszKu/azure-terraform-duckdb/assets/55062728/7b22d009-eeb4-4215-adf1-bdd08ac42b66)
+![image](https://github.com/MariuszKu/azure-terraform-duckdb/assets/55062728/ae406d3e-6a20-4b9f-a9f9-6f724c28c3f2)
+
 
 - add the Service Principal as a contributor in the resorce group
 
