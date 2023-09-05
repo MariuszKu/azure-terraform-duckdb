@@ -2,6 +2,7 @@
 - create a resorce group
 - create a Service Principal and generate its secrete
 - add the Service Principal as a contributor in the resorce group
+![image](https://github.com/MariuszKu/azure-terraform-duckdb/assets/55062728/b2248f03-2d75-42d0-8746-9360222110ab)
 
 - adjust .env file for local testing and create testing.tfvars file for terraform deployment
 
