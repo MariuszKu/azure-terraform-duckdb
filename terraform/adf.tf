@@ -25,6 +25,51 @@ resource "azurerm_data_factory_linked_service_key_vault" "adf_kv_ls" {
   description         = " Used for retrieving sp information. "
 }
 
+resource "azurerm_data_factory_linked_service_azure_databricks" "at_linked" {
+  name                = "ADBLinkedServiceViaAccessToken"
+  resource_group_name = var.resource_group
+  data_factory_id     = azurerm_data_factory.adf_transform.id
+  description         = "ADB Linked Service via Access Token"
+  existing_cluster_id = databricks_cluster.this.id
+
+  access_token = azurerm_key_vault_secret.dbpattoken.value
+  adb_domain   = "https://${azurerm_databricks_workspace.this.workspace_url}"
+}
+
+resource "azurerm_data_factory_pipeline" "databricks_pipe" {
+  name                = "databricks_pipeline"
+  resource_group_name = var.resource_group
+  data_factory_id   = azurerm_data_factory.adf_transform.id
+  description         = "Databricks"
+  activities_json = <<EOF_JSON
+        [
+            {
+                "name": "Transform_Notebook",
+                "type": "DatabricksNotebook",
+                "dependsOn": [],
+                "policy": {
+                    "timeout": "0.12:00:00",
+                    "retry": 0,
+                    "retryIntervalInSeconds": 30,
+                    "secureOutput": false,
+                    "secureInput": false
+                },
+                "userProperties": [],
+                "typeProperties": {
+                    "notebookPath": "/Shared/test/test"
+                },
+                "linkedServiceName": {
+                    "referenceName": "AzureDatabricks1",
+                    "type": "ADBLinkedServiceViaAccessToken"
+                }
+            }
+        ]
+
+  EOF_JSON  
+
+}
+
+
 resource "azurerm_data_factory_pipeline" "acg_start_pipe" {
   name                = "acg_start_and_wait_pipe"
   resource_group_name = var.resource_group
