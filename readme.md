@@ -1,3 +1,8 @@
+# Architecture
+![1 4K6CLEHHFEui_qcTOKv6WA](https://github.com/MariuszKu/azure-terraform-duckdb/assets/55062728/caab5fc8-5e06-4504-9689-de242c3427cf)
+
+
+
 # To deply this code in your enviroment 
 - create a resorce group
 - create a Service Principal and generate its secrete
