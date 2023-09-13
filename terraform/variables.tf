@@ -18,3 +18,7 @@ variable "secrete" {
 variable "project" {
   type = string
 }
+
+variable "object_id" {
+  type = string
+}

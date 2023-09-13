@@ -34,6 +34,7 @@ resource "azurerm_data_factory_linked_service_azure_databricks" "at_linked" {
 
   access_token = azurerm_key_vault_secret.dbpattoken.value
   adb_domain   = "https://${azurerm_databricks_workspace.this.workspace_url}"
+  depends_on = [databricks_cluster.this]
 }
 
 resource "azurerm_data_factory_pipeline" "databricks_pipe" {
@@ -41,6 +42,10 @@ resource "azurerm_data_factory_pipeline" "databricks_pipe" {
   resource_group_name = var.resource_group
   data_factory_id   = azurerm_data_factory.adf_transform.id
   description         = "Databricks"
+  depends_on = [
+    databricks_cluster.this, 
+    azurerm_data_factory_linked_service_azure_databricks.at_linked
+    ]
   activities_json = <<EOF_JSON
         [
             {
@@ -59,8 +64,8 @@ resource "azurerm_data_factory_pipeline" "databricks_pipe" {
                     "notebookPath": "/Shared/test/test"
                 },
                 "linkedServiceName": {
-                    "referenceName": "AzureDatabricks1",
-                    "type": "ADBLinkedServiceViaAccessToken"
+                    "referenceName": "ADBLinkedServiceViaAccessToken",
+                    "type": "LinkedServiceReference"
                 }
             }
         ]

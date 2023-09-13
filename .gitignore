@@ -3,3 +3,4 @@ terraform/.terraform*
 terraform/terraform.*
 venv
 terraform/test.tfvars
+code/__pycache__

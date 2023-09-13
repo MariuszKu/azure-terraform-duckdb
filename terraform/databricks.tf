@@ -56,11 +56,18 @@ resource "databricks_token" "pat" {
 }
 
 resource "azurerm_key_vault_secret" "dbpattoken" {
-  depends_on   = [azurerm_key_vault_access_policy.kv_acp_deployer]
+
   name         = "dbtoken"
   value        = databricks_token.pat.token_value
   key_vault_id = azurerm_key_vault.kv.id
+  depends_on = [databricks_cluster.this, azurerm_key_vault_access_policy.kv_acp_deployer]
 }
+
+#resource "azurerm_role_assignment" "storage" {
+#  scope                = azurerm_storage_account.datalake.id
+#  role_definition_name = "Storage Blob Data Contributor"
+#  principal_id         = var.client_id
+#}
 
 resource "databricks_mount" "this" {
   name = "landing"
@@ -74,4 +81,5 @@ resource "databricks_mount" "this" {
     "fs.azure.account.oauth2.client.endpoint" : "https://login.microsoftonline.com/${data.azurerm_client_config.current.tenant_id}/oauth2/token",
     "fs.azure.createRemoteFileSystemDuringInitialization" : "false",
   }
+  depends_on = [databricks_cluster.this]
 }

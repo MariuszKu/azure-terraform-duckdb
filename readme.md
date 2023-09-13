@@ -31,6 +31,8 @@ AZURE_STORAGE_ACCOUNT_NAME=""
 - execute terraform script to create resorces
 
 ```
+az login
+
 terraform init
 
 terraform plan -var-file="testing.tfvars"
@@ -53,6 +55,8 @@ docker run --name tree -d tree
 docker run -d --env-file .env --name tree tree
 
 # Container registry - deploy docker to Azure container registy
+
+- you need to start docker service
 
 az acr login --name [registyname]
 

@@ -48,7 +48,7 @@ resource "azurerm_container_registry" "this" {
 }
 
 resource "null_resource" "build" {
-
+  depends_on = [azurerm_container_registry.this]
   provisioner "local-exec" {
     command = <<EOT
      cd ..

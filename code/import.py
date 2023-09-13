@@ -20,7 +20,6 @@ def main():
 
         r = requests.get(url, stream=True)
         with fs.open(local_filename, "wb") as f:
-            #for chunk in r.raw.stream(1024, decode_content=False):
             for chunk in r.iter_content(1024*8):
                 f.write(chunk)
         logging.info(f"file: {file}")
