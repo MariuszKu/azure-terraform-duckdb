@@ -60,19 +60,14 @@ resource "azurerm_key_vault_secret" "dbpattoken" {
   name         = "dbtoken"
   value        = databricks_token.pat.token_value
   key_vault_id = azurerm_key_vault.kv.id
-  depends_on = [databricks_cluster.this, azurerm_key_vault_access_policy.kv_acp_deployer]
+  depends_on = [databricks_cluster.this, azurerm_key_vault_access_policy.user ]
 }
 
-#resource "azurerm_role_assignment" "storage" {
-#  scope                = azurerm_storage_account.datalake.id
-#  role_definition_name = "Storage Blob Data Contributor"
-#  principal_id         = var.client_id
-#}
 
 resource "databricks_mount" "this" {
   name = "landing"
   cluster_id = databricks_cluster.this.id
-  uri = "abfss://${azurerm_storage_data_lake_gen2_filesystem.this.name}@${azurerm_storage_account.datalake.name}.dfs.core.windows.net"
+  uri = "abfss://${azurerm_storage_container.container["landing"].name}@${azurerm_storage_account.datalake.name}.dfs.core.windows.net"
   extra_configs = {
     "fs.azure.account.auth.type" : "OAuth",
     "fs.azure.account.oauth.provider.type" : "org.apache.hadoop.fs.azurebfs.oauth2.ClientCredsTokenProvider",
@@ -81,5 +76,10 @@ resource "databricks_mount" "this" {
     "fs.azure.account.oauth2.client.endpoint" : "https://login.microsoftonline.com/${data.azurerm_client_config.current.tenant_id}/oauth2/token",
     "fs.azure.createRemoteFileSystemDuringInitialization" : "false",
   }
-  depends_on = [databricks_cluster.this]
+  depends_on = [
+    databricks_cluster.this, 
+    azurerm_role_assignment.data_contributor_role,
+    azurerm_storage_container.container
+    
+    ]
 }

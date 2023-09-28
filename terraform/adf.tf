@@ -14,12 +14,12 @@ resource "azurerm_key_vault_access_policy" "kv_adf_transform" {
   tenant_id    = data.azurerm_client_config.current.tenant_id
   object_id    = azurerm_data_factory.adf_transform.identity[0].principal_id
 
-  secret_permissions = ["get", "list"]
+  secret_permissions = ["Get", "List"]
 }
 
 resource "azurerm_data_factory_linked_service_key_vault" "adf_kv_ls" {
   name                = "ls_kv"
-  resource_group_name = var.resource_group
+  #resource_group_name = var.resource_group
   data_factory_id   = azurerm_data_factory.adf_transform.id
   key_vault_id        = azurerm_key_vault.kv.id
   description         = " Used for retrieving sp information. "
@@ -27,7 +27,7 @@ resource "azurerm_data_factory_linked_service_key_vault" "adf_kv_ls" {
 
 resource "azurerm_data_factory_linked_service_azure_databricks" "at_linked" {
   name                = "ADBLinkedServiceViaAccessToken"
-  resource_group_name = var.resource_group
+  #resource_group_name = var.resource_group
   data_factory_id     = azurerm_data_factory.adf_transform.id
   description         = "ADB Linked Service via Access Token"
   existing_cluster_id = databricks_cluster.this.id
@@ -39,7 +39,7 @@ resource "azurerm_data_factory_linked_service_azure_databricks" "at_linked" {
 
 resource "azurerm_data_factory_pipeline" "databricks_pipe" {
   name                = "databricks_pipeline"
-  resource_group_name = var.resource_group
+
   data_factory_id   = azurerm_data_factory.adf_transform.id
   description         = "Databricks"
   depends_on = [
@@ -76,14 +76,15 @@ resource "azurerm_data_factory_pipeline" "databricks_pipe" {
 
 
 resource "azurerm_data_factory_pipeline" "acg_start_pipe" {
+  count                = var.acr_enable ? 1 : 0  
   name                = "acg_start_and_wait_pipe"
-  resource_group_name = var.resource_group
+
   data_factory_id   = azurerm_data_factory.adf_transform.id
   description         = " A common pipeline that can be called to trigger the dbt ACG and wait for its completion."
 
   parameters = {
     #Azure container group, which hosts the dbt container
-    "acg_name" = azurerm_container_group.this.name
+    "acg_name" = azurerm_container_group.this[0].name
 
     # A rough estimate time for the data pipeline is expected to finish.
     # specify in seconds

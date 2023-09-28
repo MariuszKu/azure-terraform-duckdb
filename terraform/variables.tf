@@ -22,3 +22,7 @@ variable "project" {
 variable "object_id" {
   type = string
 }
+
+variable "acr_enable" {
+  
+}
