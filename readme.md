@@ -52,7 +52,7 @@ terraform apply -var-file="testing.tfvars"
 If you can't see the docker image in container registry you can build the docker and upload it using the instruction bellow "container registry - deploy docker to Azure container registy" and restart terraform script.
 
 
-# Build docker
+# Build docker (Optional)
 
 docker build -t tree .
 
@@ -60,7 +60,7 @@ docker run --name tree -d tree
 
 docker run -d --env-file .env --name tree tree
 
-# Container registry - deploy docker to Azure container registy
+# Container registry - deploy docker to Azure container registy (Optional)
 
 - you need to start docker service
 
