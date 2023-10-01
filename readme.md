@@ -1,5 +1,6 @@
 # Architecture
-![1 4K6CLEHHFEui_qcTOKv6WA](https://github.com/MariuszKu/azure-terraform-duckdb/assets/55062728/caab5fc8-5e06-4504-9689-de242c3427cf)
+![1 YiG-5aJreAiwISSRUmNUCw](https://github.com/MariuszKu/azure-terraform-duckdb/assets/55062728/9775e780-1e8d-47f9-9e18-4258fdf8b5cb)
+
 
 
 
